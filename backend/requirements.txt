@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pyjwt
+psycopg2
+alembic
+passlib[bcrypt]==1.7.4
