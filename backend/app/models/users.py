@@ -75,8 +75,8 @@ class UserTable:
     def get_user_by_email(self, email: str) -> Optional[UserModel]:
         try:
             with get_db() as db:
-                user = db.query(User).filter_by(email=email).first()
-                return UserModel.model_validate(user)
+                user = db.query(User).filter_by(email=email).filter(User.active_status == "true").first()
+                return UserModel.model_validate(user) if user else None
         except Exception:
             return None
             

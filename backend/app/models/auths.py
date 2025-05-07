@@ -1,6 +1,6 @@
 from typing import Optional
 import uuid
-from pydantic import BaseModel
+from pydantic import BaseModel,ConfigDict
 from sqlalchemy import Boolean, Column, String, Text
 from app.models.users import Users
 from db import Base,get_db
@@ -21,12 +21,17 @@ class AuthModel(BaseModel):
     password: str
     active_status: bool = True
 
+    model_config = ConfigDict(from_attributes=True,extra="allow")
+
 class SignUpForm(BaseModel):
     name: str
     email: str
     password: str
-    profile_image_url: Optional[str] = None
     
+
+class SignInForm(BaseModel):
+    email: str
+    password: str    
     
 class AuthTable:
     def add_new_user(self,
@@ -58,5 +63,13 @@ class AuthTable:
                     return None
             except Exception as e:
                 return None
+            
+    def get_auth_by_email(self, email: str) -> Optional[AuthModel]:
+        try:
+            with get_db() as db:
+                user = db.query(Auth).filter_by(email=email).filter(Auth.active_status == "true").first()
+                return AuthModel.model_validate(user) if user else None
+        except Exception as e:
+            return None
             
 Auths = AuthTable()
