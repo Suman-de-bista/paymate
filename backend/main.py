@@ -1,5 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from alembic.config import Config
 from alembic import command
@@ -23,6 +24,15 @@ app = FastAPI(
     debug=True
 )
 
+
+# Add the CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],   
+    allow_credentials=True,
+    allow_methods=["*"],            
+    allow_headers=["*"],              
+)
 
 @app.get('/')
 async def get_main():

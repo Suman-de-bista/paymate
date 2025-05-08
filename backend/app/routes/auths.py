@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.post('/signup')
-async def add_new_user(request: Request, response: Response, form_data: SignUpForm):
+async def add_new_user(request: Request, form_data: SignUpForm):
     try:
         if not validate_email_format(form_data.email):
             raise HTTPException(400, detail="Invalid email format")
@@ -37,8 +37,9 @@ async def add_new_user(request: Request, response: Response, form_data: SignUpFo
     
 
 @router.post('/login')
-async def login(request: Request, response: Response, form_data: SignInForm):
+async def login(request: Request, form_data: SignInForm):
     try:
+        print(form_data)
         if not validate_email_format(form_data.email):
             raise HTTPException(400, detail="Invalid email format")
         user = Auths.get_auth_by_email(form_data.email)
