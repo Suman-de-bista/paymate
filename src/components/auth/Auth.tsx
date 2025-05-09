@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { createNewUser, loginUser } from "../apis/auth";
+import { createNewUser, loginUser } from "../../apis/auth";
 import { useNavigate } from "react-router-dom";
-import useUserStore from "../store/useUserStore";
+import useUserStore from "../../store/useUserStore";
 
 const Auth = () => {
   const [username, setUsername] = useState("");

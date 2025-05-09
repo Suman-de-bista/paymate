@@ -2,6 +2,7 @@ from logging.config import fileConfig
 
 from app.models.users import User
 from app.models.auths import Auth
+from app.models.groups import Group
 from db import Base
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -13,6 +14,7 @@ from alembic import context
 config = context.config
 target_metadata = Auth.metadata
 target_metadata = User.metadata
+target_metadata = Group.metadata
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:

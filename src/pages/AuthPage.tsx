@@ -1,5 +1,5 @@
 import { DollarSign } from "lucide-react";
-import Auth from "../components/Auth";
+import Auth from "../components/auth/Auth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useUserStore from "../store/useUserStore";
