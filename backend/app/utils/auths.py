@@ -1,5 +1,5 @@
 import re
-from app.models.users import Users
+from app.models.users import UserModel, Users
 from fastapi import BackgroundTasks, Depends, HTTPException, Request, Response, status
 import uuid  # For generating session tokens
 from passlib.context import CryptContext
@@ -42,7 +42,7 @@ def decode_token(token: str):
         raise Exception("Invalid token")
     
 
-def get_user(request:Request,auth_token:HTTPAuthorizationCredentials = Depends(bearer_security)):
+def get_user(request:Request,auth_token:HTTPAuthorizationCredentials = Depends(bearer_security))->UserModel:
     token = None
     
     if auth_token is not None:
@@ -63,6 +63,7 @@ def get_user(request:Request,auth_token:HTTPAuthorizationCredentials = Depends(b
                     status_code=401,
                     detail="Invalid Token",
                 )
+            return user
     except Exception as e:
         raise HTTPException(
             status_code=401, detail="Invalid token"

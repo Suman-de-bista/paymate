@@ -3,6 +3,8 @@ import "./App.css";
 import AuthPage from "./pages/AuthPage";
 import HomePage from "./pages/HomePage";
 import PrivateRoute from "./components/PrivateRoute";
+import GroupPage from "./pages/GroupPage";
+import Layout from "./components/Layout";
 
 function App() {
   return (
@@ -13,13 +15,13 @@ function App() {
           path="/"
           element={
             <PrivateRoute>
-              <HomePage />
+              <Layout />
             </PrivateRoute>
           }
         >
-          {/* <Route path="dashboard" element={<Dashboard />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="settings" element={<Settings />} /> */}
+            <Route path="dashboard" element={<HomePage />} />
+           <Route path="groups" element={<GroupPage />} />
+           
         </Route>
       </Routes>
     </Router>

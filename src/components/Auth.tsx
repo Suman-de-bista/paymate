@@ -32,7 +32,7 @@ const Auth = () => {
       localStorage.setItem("token", res.token);
       console.log(res);
       login({name:res.name,email:res.email})
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 

@@ -11,7 +11,7 @@ const GroupCard = ({ group }) => {
             </div>
             <div className="ml-3">
               <h3 className="font-medium text-gray-800">{group.name}</h3>
-              <p className="text-sm text-gray-500">{group.members} members</p>
+              <p className="text-sm text-gray-500">{group.members.length} members</p>
             </div>
           </div>
           <span
@@ -19,8 +19,8 @@ const GroupCard = ({ group }) => {
               group.balance >= 0 ? "text-green-600" : "text-red-600"
             }`}
           >
-            {group.balance >= 0 ? "+" : ""}
-            {group.balance.toFixed(2)}
+            {0.00}
+            {0.00}
           </span>
         </div>
         <div className="mt-4 flex justify-between">

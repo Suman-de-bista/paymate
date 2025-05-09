@@ -6,6 +6,7 @@ from alembic.config import Config
 from alembic import command
 from app.routes import users
 from app.routes import auths
+from app.routes import groups
 
 
 @asynccontextmanager
@@ -43,3 +44,4 @@ async def get_main():
 
 app.include_router(auths.router,prefix="/auth",tags=["auth"])
 app.include_router(users.router,prefix="/users",tags=["users"])
+app.include_router(groups.router,prefix="/groups",tags=["groups"])

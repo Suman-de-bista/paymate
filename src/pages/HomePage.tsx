@@ -1,46 +1,24 @@
-import { useState } from "react";
 import {
   DollarSign,
   CreditCard,
   Users,
   Plus
 } from "lucide-react";
-import { Outlet } from "react-router-dom";
-import SideBar from "../components/common/SideBar";
-import NavBar from "../components/common/NavBar";
 import StatsCard from "../components/common/StatsCard";
 import GroupCard from "../components/common/GroupCard";
 import RecentTransaction from "../components/common/RecentTransaction";
-import useUserStore from "../store/useUserStore";
 
 
 
 const HomePage = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const {isLoggedIn} = useUserStore()
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {isLoggedIn && (
-        <>
-        <SideBar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-
-<div className="flex-1 flex flex-col overflow-hidden lg:ml-64">
-  <NavBar toggleSidebar={toggleSidebar} />
-
-  <main className="flex-1 overflow-y-auto">
-    <DashboardContent />
-  </main>
-</div>
-<Outlet />
-        </>
-      )}
-      
-    </div>
+    <>
+      <main className="flex-1 overflow-y-auto">
+        <DashboardContent />
+      </main>
+    </>
   );
 };
 
@@ -187,7 +165,7 @@ const DashboardContent = () => {
           </button>
         </div>
       </div>
-      
+
     </div>
   );
 };

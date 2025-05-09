@@ -4,10 +4,13 @@ import useUserStore from "../store/useUserStore";
 
 const PrivateRoute = ({ children }) => {
   const navigate = useNavigate();
-  const {isLoggedIn} = useUserStore();
+  const {isLoggedIn,logout} = useUserStore();
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    const token = localStorage.getItem("token");
+    if (!isLoggedIn || !token) {
+      localStorage.removeItem("token");
+      logout()
       navigate("/auth");
     }
   }, [navigate]);
