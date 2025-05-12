@@ -31,7 +31,7 @@ const Auth = () => {
     if (res) {
       localStorage.setItem("token", res.token);
       console.log(res);
-      login({name:res.name,email:res.email})
+      login({id:res.id,name:res.name,email:res.email})
       navigate("/dashboard");
     }
   };

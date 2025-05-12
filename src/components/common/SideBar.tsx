@@ -1,7 +1,20 @@
 import { CreditCard, DollarSign, LogOut, PieChart, Settings, Users, X } from "lucide-react";
 import SideBarLink from "./SideBarLink";
+import useUserStore from "../../store/useUserStore";
+import { useLocation, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const SideBar = ({ isOpen, toggleSidebar }) => {
+  const {logout} = useUserStore()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    logout()
+    toast.success("Logged out successfully")
+    navigate("/auth")
+  }
     return (
       <>
         {/* Mobile overlay */}
@@ -33,14 +46,14 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
           </div>
   
           <nav className="mt-6">
-            <SideBarLink icon={<PieChart size={20} />} label="Dashboard" active />
-            <SideBarLink icon={<CreditCard size={20} />} label="Expenses" />
-            <SideBarLink icon={<Users size={20} />} label="Groups" />
-            <SideBarLink icon={<Settings size={20} />} label="Settings" />
+            <SideBarLink handleClick={() => navigate("/dashboard")} icon={<PieChart size={20} />} label="Dashboard" active={location.pathname === "/dashboard"} />
+            <SideBarLink handleClick={() => navigate("/expenses")} icon={<CreditCard size={20} />} label="Expenses" active={location.pathname === "/expenses"} />
+            <SideBarLink handleClick={() => navigate("/groups")} icon={<Users size={20} />} label="Groups" active={location.pathname === "/groups"} />
+            <SideBarLink handleClick={() => navigate("/settings")} icon={<Settings size={20} />} label="Settings" active={location.pathname === "/settings"} />
   
             <div className="px-4 py-2 mt-12">
               <div className="border-t border-gray-700 pt-4">
-                <SideBarLink icon={<LogOut size={20} />} label="Logout" />
+                <SideBarLink handleClick={handleLogout} icon={<LogOut size={20} />} label="Logout" />
               </div>
             </div>
           </nav>

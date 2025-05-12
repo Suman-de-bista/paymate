@@ -6,6 +6,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import GroupPage from "./pages/GroupPage";
 import Layout from "./components/Layout";
 import GroupDetailsPage from "./pages/GroupDetailsPage";
+import SettingsPage from "./pages/SettingsPage";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="dashboard" element={<HomePage />} />
            <Route path="groups" element={<GroupPage />} />
            <Route path="groups/:groupId" element={<GroupDetailsPage />} />
+           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </Router>

@@ -1,20 +1,16 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Plus, X, Edit2, Save, Users, DollarSign, ArrowLeft } from "lucide-react";
-import { getGroupDetails, updateGroupDetails, addGroupMembers, searchUsersByEmailInGroup } from "../apis/groups";
-import { debounce } from "lodash";
+import { Plus, Edit2, Save, Users, DollarSign, ArrowLeft } from "lucide-react";
+import { getGroupDetails, updateGroupDetails } from "../apis/groups";
+import { getTransactions } from "../apis/transaction";
+import StatsCard from "../components/group/StatsCard";
+import TransactionCard from "../components/group/TransactionCard";
+import UserCard from "../components/group/UserCard";
+import {  Group, Transaction } from "../types/group";
+import AddMemberModal from "../components/group/AddMemberModal";
+import AddTransactionModal from "../components/group/AddTransactionModal";
+import useUserStore from "../store/useUserStore";
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
-
-interface GroupMember {
-  id: string;
-  email: string;
-  name: string;
-}
 
 const getRandomColor = (seed: string | undefined) => {
   const colors = [
@@ -40,16 +36,22 @@ const getRandomColor = (seed: string | undefined) => {
 const GroupDetailsPage = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
-  const [group, setGroup] = useState<any>(null);
+  const [group, setGroup] = useState<Group | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [editedDescription, setEditedDescription] = useState("");
-  const [emailInput, setEmailInput] = useState("");
-  const [searchResults, setSearchResults] = useState<User[]>([]);
-  const [selectedMembers, setSelectedMembers] = useState<GroupMember[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [showAddTransactionModal, setShowAddTransactionModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const {user} = useUserStore();
+
+  const [totalTransactionAmount, setTotalTransactionAmount] = useState(0);
+  const [totalOwed, setTotalOwed] = useState(0);
+  const [totalYouOwe, setTotalYouOwe] = useState(0);
+  
+  // Transaction form state
+
 
   useEffect(() => {
     fetchGroupDetails();
@@ -59,7 +61,14 @@ const GroupDetailsPage = () => {
     try {
       setIsLoading(true);
       const data = await getGroupDetails(groupId!);
-      setGroup(data);
+      const transactions = await getTransactions(groupId!);
+      setGroup({
+        ...data,
+        transactions: transactions || []
+      });
+      setTotalTransactionAmount(transactions.reduce((acc: number, transaction: Transaction) => acc + transaction.amount, 0));
+      setTotalOwed(transactions.filter((transaction: Transaction) => transaction.paid_by === user?.id).reduce((acc: number, transaction: Transaction) => acc + (transaction.amount - transaction.amount / transaction.split_between.length), 0));
+      setTotalYouOwe(transactions.filter((transaction: Transaction) => transaction.paid_by !== user?.id).reduce((acc: number, transaction: Transaction) => acc + (transaction.amount / transaction.split_between.length), 0));
       setEditedName(data.name);
       setEditedDescription(data.description);
     } catch (error) {
@@ -83,54 +92,6 @@ const GroupDetailsPage = () => {
     }
   };
 
-  const searchUsers = useCallback(
-    debounce(async (email: string) => {
-      if (email.length < 3) {
-        setSearchResults([]);
-        return;
-      }
-      setIsSearching(true);
-      try {
-        const results = await searchUsersByEmailInGroup(email, groupId!);
-        setSearchResults(results);
-      } catch (error) {
-        console.error("Error searching users:", error);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 500),
-    []
-  );
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const email = e.target.value;
-    setEmailInput(email);
-    searchUsers(email);
-  };
-
-  const handleAddMember = (user: User) => {
-    if (!selectedMembers.find((member) => member.id === user.id)) {
-      setSelectedMembers([...selectedMembers, user]);
-    }
-    setEmailInput("");
-    setSearchResults([]);
-  };
-
-  const handleRemoveMember = (userId: string) => {
-    setSelectedMembers(selectedMembers.filter((member) => member.id !== userId));
-  };
-
-  const handleSaveMembers = async () => {
-    try {
-      const memberIds = selectedMembers.map((member) => member.id);
-      await addGroupMembers(groupId!, memberIds);
-      setShowAddMemberModal(false);
-      setSelectedMembers([]);
-      fetchGroupDetails();
-    } catch (error) {
-      console.error("Error adding members:", error);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -156,12 +117,12 @@ const GroupDetailsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="h-screen overflow-hidden bg-gray-50">
+      <div className="h-full max-w-7xl mx-auto px-4 py-2 overflow-y-auto">
         {/* Back Button */}
         <button
           onClick={() => navigate("/groups")}
-          className="flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors"
+          className="flex items-center text-gray-600 hover:text-gray-800 mb-4 transition-colors sticky top-0 bg-gray-50 py-2 z-10"
         >
           <ArrowLeft size={20} className="mr-2" />
           Back to Groups
@@ -169,8 +130,9 @@ const GroupDetailsPage = () => {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Group Details */}
-          <div className="lg:col-span-2">
+          {/* Left Column - Group Details and Transactions */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Group Details Card */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 transition-all hover:shadow-md">
               <div className="flex justify-between items-start mb-8">
                 {isEditing ? (
@@ -205,27 +167,43 @@ const GroupDetailsPage = () => {
               </div>
 
               {/* Group Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex items-center space-x-4 p-4 border-b-2 border-blue-500">
-                  <Users size={24} className="text-blue-500" />
-                  <div>
-                    <p className="text-sm text-gray-600">Total Members</p>
-                    <p className="text-2xl font-bold text-gray-800">{group.members.length}</p>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <StatsCard value={group.members.length} icon={<Users size={24} className="text-blue-500" />} label="Total Members" />
+                <StatsCard value={totalTransactionAmount.toFixed(2)} icon={<DollarSign size={24} className="text-blue-500" />} label="Total Amount" />
+                <StatsCard value={totalOwed.toFixed(2)} icon={<DollarSign size={24} className="text-green-500" />} label="You're Owed" />
+                <StatsCard value={totalYouOwe.toFixed(2)} icon={<DollarSign size={24} className="text-red-500" />} label="You Owe" />
+              </div>
+            </div>
+
+            {/* Transactions Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div className="p-6 border-b border-gray-100 sticky top-0 bg-white z-10">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <DollarSign size={24} className="text-gray-600 mr-3" />
+                    <h2 className="text-xl font-semibold text-gray-800">Transactions</h2>
                   </div>
+                  <button
+                    onClick={() => setShowAddTransactionModal(true)}
+                    className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg transition-all transform hover:scale-105"
+                  >
+                    <Plus size={20} />
+                  </button>
                 </div>
-                <div className="flex items-center space-x-4 p-4 border-b-2 border-green-500">
-                  <DollarSign size={24} className="text-green-500" />
-                  <div>
-                    <p className="text-sm text-gray-600">Total Balance</p>
-                    <p className="text-2xl font-bold text-gray-800">${(group.balance || 0).toFixed(2)}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4 p-4 border-b-2 border-purple-500">
-                  <DollarSign size={24} className="text-purple-500" />
-                  <div>
-                    <p className="text-sm text-gray-600">Your Share</p>
-                    <p className="text-2xl font-bold text-gray-800">${((group.balance || 0) / (group.members.length || 1)).toFixed(2)}</p>
-                  </div>
+              </div>
+              
+              {/* Transactions List */}
+              <div className="h-[calc(100vh-32rem)] overflow-y-auto custom-scrollbar">
+                <div className="divide-y divide-gray-100">
+                  {group.transactions && group.transactions.length > 0 ? (
+                    group.transactions.map((transaction: Transaction) => (
+                      <TransactionCard transaction={transaction} />
+                    ))
+                  ) : (
+                    <div className="flex items-center justify-center h-32">
+                      <p className="text-gray-500">No transactions yet</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -233,7 +211,7 @@ const GroupDetailsPage = () => {
 
           {/* Right Column - Members List */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 h-[calc(100vh-12rem)] flex flex-col">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 sticky top-8">
               <div className="p-6 border-b border-gray-100">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
@@ -250,26 +228,10 @@ const GroupDetailsPage = () => {
               </div>
               
               {/* Members List */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <div className="max-h-[calc(100vh-14rem)] overflow-y-auto custom-scrollbar">
                 <div className="divide-y divide-gray-100">
                   {group.members.map((member: any) => (
-                    <div
-                      key={member.id || Math.random()}
-                      className="flex items-center p-4 hover:bg-gray-50 transition-colors"
-                    >
-                      <div 
-                        className="h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold shadow-sm"
-                        style={{
-                          background: `linear-gradient(135deg, ${getRandomColor(member.id)}, ${getRandomColor(member.id ? member.id + '2' : 'default2')})`
-                        }}
-                      >
-                        {member.name ? member.name.substring(0, 2).toUpperCase() : '??'}
-                      </div>
-                      <div className="ml-3 flex-1 min-w-0">
-                        <p className="font-medium text-gray-800 truncate">{member.name || 'Unknown User'}</p>
-                        <p className="text-sm text-gray-500 truncate">{member.email || 'No email'}</p>
-                      </div>
-                    </div>
+                    <UserCard member={member} getRandomColor={getRandomColor} />
                   ))}
                 </div>
               </div>
@@ -279,84 +241,12 @@ const GroupDetailsPage = () => {
 
         {/* Add Member Modal */}
         {showAddMemberModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8 relative transform transition-all max-h-[90vh] overflow-y-auto">
-              <button
-                onClick={() => setShowAddMemberModal(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X size={24} />
-              </button>
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Add Members</h2>
-              
-              {/* Email Search Input */}
-              <div className="relative mb-6">
-                <input
-                  type="email"
-                  value={emailInput}
-                  onChange={handleEmailChange}
-                  placeholder="Enter email to search users..."
-                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-                {isSearching && (
-                  <div className="absolute right-3 top-3">
-                    <div className="animate-spin h-6 w-6 border-3 border-blue-500 rounded-full border-t-transparent"></div>
-                  </div>
-                )}
-              </div>
+          <AddMemberModal groupId={groupId} setShowAddMemberModal={setShowAddMemberModal} fetchGroupDetails={fetchGroupDetails} />
+        )}
 
-              {/* Search Results */}
-              {searchResults.length > 0 && (
-                <div className="mb-6 max-h-48 overflow-y-auto rounded-lg border border-gray-100 custom-scrollbar">
-                  {searchResults.map((user) => (
-                    <div
-                      key={user.id}
-                      onClick={() => handleAddMember(user)}
-                      className="p-3 hover:bg-blue-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
-                    >
-                      <p className="font-medium text-gray-800">{user.name}</p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Selected Members */}
-              {selectedMembers.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Selected Members</h3>
-                  <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-                    {selectedMembers.map((member) => (
-                      <div
-                        key={member.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                      >
-                        <div>
-                          <p className="font-medium text-gray-800">{member.name}</p>
-                          <p className="text-sm text-gray-500">{member.email}</p>
-                        </div>
-                        <button
-                          onClick={() => handleRemoveMember(member.id)}
-                          className="text-red-500 hover:text-red-700 transition-colors"
-                        >
-                          <X size={18} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Save Button */}
-              <button
-                onClick={handleSaveMembers}
-                disabled={selectedMembers.length === 0}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition-all transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                Add Selected Members
-              </button>
-            </div>
-          </div>
+        {/* Add Transaction Modal */}
+        {showAddTransactionModal && (
+          <AddTransactionModal group={group} setGroup={setGroup} setShowAddTransactionModal={setShowAddTransactionModal}/>
         )}
       </div>
     </div>
