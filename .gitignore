@@ -12,6 +12,7 @@ venv/
 .env
 
 # Python cache files
+backend/static/qr/
 __pycache__/
 */__pycache__/
 */*/__pycache__/

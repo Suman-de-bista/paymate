@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, QrCode, Bell, Shield, CreditCard, LogOut } from 'lucide-react';
 import AddQRModal from '../components/AddQRModal';
+import QR from '../components/settings/QR';
 
 interface UserInfo {
   name: string;
@@ -17,7 +18,7 @@ const SettingsPage: React.FC = () => {
     phone: '+1234567890',
     address: '123 Main St, City'
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   const handleUserInfoChange = (field: keyof UserInfo, value: string) => {
     setUserInfo(prev => ({
@@ -88,36 +89,7 @@ const SettingsPage: React.FC = () => {
   );
 
   const renderQRSection = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Your QR Codes</h3>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Add New QR
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Sample QR Code Cards */}
-        {[1, 2, 3].map((item) => (
-          <div key={item} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div className="aspect-square bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-              <QrCode size={100} className="text-gray-400" />
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium">QR Code {item}</h4>
-              <p className="text-sm text-gray-500">Created on Jan {item}, 2024</p>
-              <div className="flex space-x-2">
-                <button className="text-sm text-blue-600 hover:text-blue-700">Edit</button>
-                <button className="text-sm text-red-600 hover:text-red-700">Delete</button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <QR  />
   );
 
   const renderNotificationsSection = () => (
@@ -249,14 +221,7 @@ const SettingsPage: React.FC = () => {
           </div>
         </div>
       </div>
-      <AddQRModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={(qrData) => {
-          // Handle the QR code data
-          console.log(qrData);
-        }}
-      />
+      
     </div>
   );
 };

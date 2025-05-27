@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { X, Image, Plus, Trash2 } from 'lucide-react';
+import { createQR } from '../apis/qr';
 
 interface AddQRModalProps {
   isOpen: boolean;
@@ -62,12 +63,14 @@ const AddQRModal: React.FC<AddQRModalProps> = ({ isOpen, onClose, onSave }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
+    const qrData = {
       name,
       description,
-      image,
-      isDefault
-    });
+      qr_image: image,
+      is_active:isDefault
+    }
+    createQR(qrData);
+    onSave(qrData);
     // Reset form
     setName('');
     setDescription('');

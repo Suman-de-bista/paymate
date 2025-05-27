@@ -8,7 +8,7 @@ from app.routes import users
 from app.routes import auths
 from app.routes import groups
 from app.routes import transaction
-from app.routes import qrdetail
+from app.routes import qr
 
 
 @asynccontextmanager
@@ -48,4 +48,4 @@ app.include_router(auths.router,prefix="/auth",tags=["auth"])
 app.include_router(users.router,prefix="/users",tags=["users"])
 app.include_router(groups.router,prefix="/groups",tags=["groups"])
 app.include_router(transaction.router,prefix="/transaction",tags=["transaction"])
-app.include_router(qrdetail.router,prefix="/qrdetail",tags=["qrdetail"])
+app.include_router(qr.router,prefix="/qr",tags=["qr"])
