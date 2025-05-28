@@ -14,7 +14,7 @@ export interface QRDetail {
 export interface QRDetailCreate {
     name: string;
     description: string;
-    qr_image: File;
+    qr_image: File | null;
     is_active?: boolean;
 }
 
@@ -57,3 +57,23 @@ export const deleteQR = async (qrId: string) => {
         throw error;
     }
 }; 
+
+export const getQR = async (qrId: string) => {
+    try {
+        const response = await api.get<QRDetail>(`/qr/${qrId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching QR code:', error);
+        throw error;
+    }
+};
+
+export const updateQR = async (qrId: string, qrData: QRDetailCreate) => {
+    try {
+        const response = await api.put<QRDetail>(`/qr/${qrId}`, qrData);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating QR code:', error);
+        throw error;
+    }
+};

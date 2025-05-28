@@ -1,6 +1,7 @@
 import time
 from pydantic import BaseModel, ConfigDict, field_validator
 from sqlalchemy import BigInteger, Boolean, Column, String
+from app.models.users import UserModel
 from db import Base,get_db
 from fastapi import UploadFile
 from typing import Union
@@ -59,6 +60,18 @@ class QRTable:
 
             except Exception as e:
                 return None
+            
+    def get_qr_by_id(self,id:str)->QRModel:
+        with get_db() as db:
+            try:
+                query = db.query(QR)
+                query = query.filter(QR.id == id)
+                query = query.order_by(QR.created_at.desc())
+                result = query.first()
+                return QRModel.model_validate(result)
+
+            except Exception as e:
+                return None
     
     def get_qr_by_id(self, qr_id: str) -> QRModel:
         with get_db() as db:
@@ -107,6 +120,23 @@ class QRTable:
                 return QRModel.model_validate(result) if result else None
 
             except Exception as e:
+                return None
+    
+    def update_default_qr(self,user:UserModel):
+        with get_db() as db:
+            try:
+                qr = db.query(QR).filter_by(user_id=user.id).filter(QR.is_active == True).all()
+                if not qr:
+                    return None
+                for item in qr:
+                    item.is_active = False
+                    item.updated_at = int(time.time())
+                db.commit()
+                db.refresh(qr)
+                
+                return QRModel.model_validate(qr)
+            except Exception as e:
+                print(f"Error in update_qr: {str(e)}")
                 return None
             
 QRTables = QRTable()

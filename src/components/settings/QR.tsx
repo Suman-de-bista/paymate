@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { getUserQRs, QRDetail, deleteQR } from '../../apis/qr';
 import AddQRModal from '../AddQRModal';
+import UpdateQRModal from '../UpdateQRModal';
 
 const QR = () => {
     const [qrCodes, setQrCodes] = useState<QRDetail[]>([]);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isUpdateOpen,setIsUpdateOpen] = useState(false);
+    const [selectedQR,setSelectedQR] = useState<QRDetail | null>(null);
 
     const fetchQrCodes = async () => {
         const qrCodes = await getUserQRs();
@@ -32,6 +35,12 @@ const QR = () => {
         }
     };
 
+    const handleEditBtn =(qr:QRDetail)=>{
+        setIsUpdateOpen(true)
+        setSelectedQR(qr)
+
+    }
+
   return (
     <div className="space-y-6">
         {isModalOpen && <AddQRModal
@@ -45,6 +54,23 @@ const QR = () => {
           }
         }}
       />}
+      {(isUpdateOpen && selectedQR) && <UpdateQRModal
+        isOpen={isUpdateOpen}
+        onClose={() => {
+            setIsUpdateOpen(false)
+            setSelectedQR(null)
+        }}
+        onSave={async (qrData) => {
+          try {
+            await fetchQrCodes(); // Refresh the list after new QR is added
+          } catch (error) {
+            console.error('Error refreshing QR list:', error);
+          }
+        }}
+        qrData = {selectedQR}
+      />}
+
+    
     <div className="flex justify-between items-center">
       <h3 className="text-lg font-semibold">Your QR Codes</h3>
       <button
@@ -78,7 +104,7 @@ const QR = () => {
             <p className="text-sm text-gray-500">{item.description}</p>
             <p className="text-sm text-gray-500">{new Date(item.created_at).toLocaleDateString("en-US")}</p>
             <div className="flex space-x-2">
-              <button className="text-sm text-blue-600 hover:text-blue-700">Edit</button>
+              <button className="text-sm text-blue-600 hover:text-blue-700" onClick={()=>handleEditBtn(item)}>Edit</button>
               <button 
                 onClick={(e) => handleDelete(item.id, e)}
                 disabled={isDeleting}

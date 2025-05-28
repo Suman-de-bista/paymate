@@ -18,9 +18,16 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 @router.get('/',response_model=list[QRModel])
-async def get_qr_by_id(skip: Optional[int] = None, limit: Optional[int] = None,user = Depends(get_user)):
+async def get_qr_by_userid(skip: Optional[int] = None, limit: Optional[int] = None,user = Depends(get_user)):
     try:
         return QRTables.get_qr(user.id)
+    except Exception as e:
+        return str(e)
+    
+@router.get('/{qr_id}',response_model=QRModel)
+async def get_qr_by_id(qr_id:str,user = Depends(get_user)):
+    try:
+        return QRTables.get_qr_by_id(qr_id)
     except Exception as e:
         return str(e)
 
@@ -45,6 +52,8 @@ async def add_new_qr(
             f.write(content)
 
         # Create QR record with URL path
+        if is_active:
+            QRTables.update_default_qr(user)
         qr = QRTables.add_new_qr(
             id=str(uuid.uuid4()),
             user_id=user.id,
@@ -60,6 +69,7 @@ async def add_new_qr(
 
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": str(e)})
+
 
 @router.delete('/{qr_id}')
 async def delete_qr(qr_id: str, user = Depends(get_user)):
