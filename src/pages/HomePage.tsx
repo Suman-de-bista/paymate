@@ -5,7 +5,7 @@ import {
   Plus
 } from "lucide-react";
 import StatsCard from "../components/common/StatsCard";
-import GroupCard from "../components/common/GroupCard";
+import GroupCard from "../components/group/GroupCard";
 import RecentTransaction from "../components/common/RecentTransaction";
 
 

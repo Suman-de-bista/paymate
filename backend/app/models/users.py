@@ -1,5 +1,5 @@
 import time
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import BigInteger, Boolean, Column, Integer, String, Text
 
@@ -79,6 +79,6 @@ class UserTable:
                 return UserModel.model_validate(user) if user else None
         except Exception:
             return None
-            
 
+    
 Users = UserTable()

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
-import GroupCard from "../components/common/GroupCard";
-import Modal from "../components/common/AddGroup";
+import GroupCard from "../components/group/GroupCard";
+import Modal from "../components/group/AddGroup";
 import { createGroup, getGroups } from "../apis/groups";
 
 const GroupPage = () => {

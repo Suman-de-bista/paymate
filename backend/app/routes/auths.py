@@ -39,7 +39,6 @@ async def add_new_user(request: Request, form_data: SignUpForm):
 @router.post('/login')
 async def login(request: Request, form_data: SignInForm):
     try:
-        print(form_data)
         if not validate_email_format(form_data.email):
             raise HTTPException(400, detail="Invalid email format")
         user = Auths.get_auth_by_email(form_data.email)
