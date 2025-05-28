@@ -61,11 +61,11 @@ class QRTable:
             except Exception as e:
                 return None
             
-    def get_qr_by_id(self,id:str)->QRModel:
+    def get_qr_by_id(self,qr_id:str)->QRModel:
         with get_db() as db:
             try:
                 query = db.query(QR)
-                query = query.filter(QR.id == id)
+                query = query.filter(QR.id == qr_id)
                 query = query.order_by(QR.created_at.desc())
                 result = query.first()
                 return QRModel.model_validate(result)
@@ -73,10 +73,10 @@ class QRTable:
             except Exception as e:
                 return None
     
-    def get_qr_by_id(self, qr_id: str) -> QRModel:
+    def get_active_qr_by_id(self, qr_id: str) -> QRModel:
         with get_db() as db:
             try:
-                result = db.query(QR).filter(QR.id == qr_id).first()
+                result = db.query(QR).filter(QR.user_id == qr_id).filter(QR.is_active == True).first()
                 return QRModel.model_validate(result) if result else None
             except Exception as e:
                 return None

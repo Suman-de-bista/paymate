@@ -5,6 +5,7 @@ import PaymentModal from "../payment/PaymentModal"
 
 const TransactionCard = ({ transaction }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [selectedTransactionId,setSelectedTransactionId] = useState('')
   const {user} = useUserStore()
   const isInGroup = transaction.split_between.includes(user?.id)
   const totalShareMembers = transaction.split_between.length
@@ -34,7 +35,10 @@ const TransactionCard = ({ transaction }) => {
           <p className="text-sm text-gray-500">{new Date(transaction.date * 1000).toLocaleDateString()}</p>
           {isInGroup && !isPayer && (
             <div className="mt-2 flex justify-center bg-red-600 text-white px-2 py-1 rounded-md">
-              <button className="text-sm text-gray-200" onClick={() => setShowPaymentModal(true)}>
+              <button className="text-sm text-gray-200" onClick={() => {
+                setShowPaymentModal(true)
+                setSelectedTransactionId(transaction.paid_by)
+                }}>
                 Pay <span className="text-xs text-gray-200">({shareAmount.toFixed(2)})</span>
               </button>
             </div>
@@ -43,7 +47,7 @@ const TransactionCard = ({ transaction }) => {
             <PaymentModal
               isOpen={showPaymentModal}
               onClose={() => setShowPaymentModal(false)}
-              qrImage={"../assets/qr.png"}
+              payeeId={selectedTransactionId}
               shareAmount = {shareAmount.toFixed(2)}
             />
           )}

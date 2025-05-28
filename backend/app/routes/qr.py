@@ -24,10 +24,10 @@ async def get_qr_by_userid(skip: Optional[int] = None, limit: Optional[int] = No
     except Exception as e:
         return str(e)
     
-@router.get('/{qr_id}',response_model=QRModel)
+@router.get('/{qr_id}',response_model=Optional[QRModel])
 async def get_qr_by_id(qr_id:str,user = Depends(get_user)):
     try:
-        return QRTables.get_qr_by_id(qr_id)
+        return QRTables.get_active_qr_by_id(qr_id)
     except Exception as e:
         return str(e)
 
@@ -91,8 +91,8 @@ async def delete_qr(qr_id: str, user = Depends(get_user)):
 
         return JSONResponse(status_code=200, content={"message": "QR code deleted successfully"})
 
-    except HTTPException as he:
-        raise he
+    #except HTTPException as he:
+     #   raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
