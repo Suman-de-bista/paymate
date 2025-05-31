@@ -9,6 +9,7 @@ from app.routes import auths
 from app.routes import groups
 from app.routes import transaction
 from app.routes import qr
+from app.routes import dashboard
 
 
 @asynccontextmanager
@@ -46,6 +47,7 @@ async def get_main():
 
 app.include_router(auths.router,prefix="/auth",tags=["auth"])
 app.include_router(users.router,prefix="/users",tags=["users"])
+app.include_router(dashboard.router,prefix="/dashboard",tags=["dashboard"])
 app.include_router(groups.router,prefix="/groups",tags=["groups"])
 app.include_router(transaction.router,prefix="/transaction",tags=["transaction"])
 app.include_router(qr.router,prefix="/qr",tags=["qr"])

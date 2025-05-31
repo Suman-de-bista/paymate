@@ -60,7 +60,7 @@ const AddMemberModal = ({groupId,setShowAddMemberModal,fetchGroupDetails}) => {
         }
       };
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-white/30 bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-8 relative transform transition-all max-h-[90vh] overflow-y-auto">
               <button
                 onClick={() => setShowAddMemberModal(false)}

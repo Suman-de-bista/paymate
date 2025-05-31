@@ -47,7 +47,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   
           <nav className="mt-6">
             <SideBarLink handleClick={() => navigate("/dashboard")} icon={<PieChart size={20} />} label="Dashboard" active={location.pathname === "/dashboard"} />
-            <SideBarLink handleClick={() => navigate("/expenses")} icon={<CreditCard size={20} />} label="Expenses" active={location.pathname === "/expenses"} />
+            {/* <SideBarLink handleClick={() => navigate("/expenses")} icon={<CreditCard size={20} />} label="Expenses" active={location.pathname === "/expenses"} /> */}
             <SideBarLink handleClick={() => navigate("/groups")} icon={<Users size={20} />} label="Groups" active={location.pathname === "/groups"} />
             <SideBarLink handleClick={() => navigate("/settings")} icon={<Settings size={20} />} label="Settings" active={location.pathname === "/settings"} />
   

@@ -2,7 +2,7 @@ import { X } from "lucide-react";
 
 const Modal = ({ children, onClose }) => {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-white/30 bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
         <button
           onClick={onClose}

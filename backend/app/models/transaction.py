@@ -1,8 +1,9 @@
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import JSON, BigInteger, Boolean, Column, Float, String
+from sqlalchemy import JSON, BigInteger, Boolean, Column, Float, String, func
 from db import Base, get_db
 import uuid
 import time
+from sqlalchemy.dialects.postgresql import JSONB
 
 
 class Transaction(Base):
@@ -83,6 +84,39 @@ class TransactionTable:
             except Exception as e:
                 print(f"Error creating transaction: {str(e)}")
                 db.rollback()
+                return None
+            
+    async def get_recent_transactions(self,user_id: str,skip: int = None, limit: int = None) -> list[TransactionModel]:
+        with get_db() as db:
+            try:
+                query = db.query(Transaction).filter(Transaction.split_between.cast(JSONB).contains([user_id]))
+                query = query.order_by(Transaction.created_at.desc())
+                query = query.offset(skip)
+                query = query.limit(limit)
+                results = query.all()
+                return results
+            except Exception as e:
+                return None
+    
+    async def get_owe_transactions(self,user_id: str) -> list[TransactionModel]:
+        with get_db() as db:
+            try:
+                query = db.query(Transaction)
+                query = query.filter(Transaction.paid_by != user_id)
+                query = query.filter(Transaction.split_between.cast(JSONB).contains([user_id]))
+                results = query.all()
+                return results
+            except Exception as e:
+                return None
+    
+    async def get_owed_transactions(self,user_id: str) -> list[TransactionModel]:
+        with get_db() as db:
+            try:
+                query = db.query(Transaction)
+                query = query.filter(Transaction.paid_by == user_id)
+                results = query.all()
+                return results
+            except Exception as e:
                 return None
             
 Transactions = TransactionTable()

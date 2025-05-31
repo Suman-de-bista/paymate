@@ -50,9 +50,9 @@ const GroupCard = ({ group }: { group: Group }) => {
           >
             View Details
           </button>
-          <button className="text-sm text-gray-500 font-medium hover:text-gray-700">
+          {/* <button className="text-sm text-gray-500 font-medium hover:text-gray-700">
             Settle Up
-          </button>
+          </button> */}
         </div>
       </div>
     );
