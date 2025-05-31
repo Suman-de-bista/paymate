@@ -102,13 +102,16 @@ class GroupTable:
                 print(f"Error in get_group_by_id: {str(e)}")
                 return None
             
-    def get_group_by_user_id(self, user_id: str) -> list[GroupModel] :
+    async def get_group_by_user_id(self, user_id: str,skip: int = None, limit: int = None) -> list[GroupModel] :
         with get_db() as db:
             try:
                 results = (
                 db.query(Group)
+                .order_by(Group.created_at.desc())
                 .filter(text(f"members::text LIKE '%{user_id}%'"))
                 .filter(Group.active_status == True)
+                .offset(skip)
+                .limit(limit)
                 .all()
                 )
                 return [GroupModel.model_validate(result) for result in results] 
@@ -213,10 +216,6 @@ class GroupTable:
                     User.active_status == True,
                     ~User.id.in_(existing_member_ids)  # Exclude existing members
                 ).limit(limit).all()
-                
-                # Debug: Print found users
-                found_user_ids = [user.id for user in users]
-                print(f"Found users: {found_user_ids}")
                 
                 return [UserModel.model_validate(user) for user in users]
         except Exception as e:

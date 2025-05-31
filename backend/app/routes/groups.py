@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get('/',response_model=list[GroupModel])
 async def get_group_by_user_id(skip: Optional[int] = None, limit: Optional[int] = None,user = Depends(get_user)):
-    return Groups.get_group_by_user_id(user_id=user.id)
+    return await Groups.get_group_by_user_id(user.id,skip,limit)
 
 @router.get('/{group_id}', response_model=GroupModel)
 async def get_group_and_members_by_id(group_id: str, user = Depends(get_user)):
